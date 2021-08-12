@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<head>
+    <title>Stock Trender</title>
+    <link rel="stylesheet" href="../../static/css.css" />
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+</head>
+<body>
+   <div style="font-size: 2rem; color: white; font-weight: bold; text-align: center;" class="heading">
+       <h1>Analyzing: {{ stock }}</h1>
+       <a href="/">Back To Search</a>
+   </div>
+    
+   
+    <div style="width: 75vw; margin: auto;" class="graph">
+           <iframe frameBorder='0' scrolling='no' width='100%' height='420' src='https://api.stockdio.com/visualization/financial/charts/v1/HistoricalPrices?app-key=CAC80DF04B364591B0E98DB71AB73B00&symbol={{stock}}&dividends=true&splits=true&palette=Financial-Light'></iframe>
+    </div>
+    <div style="margin: auto;" class="selector-container" id="trend-selector">
+    <div class="container">
+        <form id="basic" action="{{ url_for('analyze', stock=stock)}}" method="POST">
+            <div class="row text-center text-bold">
+                <label>Change the moving averages below here</label>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="sslow">Slow Period</label>
+                </div>
+                <div class="col-75">
+                    <input type="number" id="slow" name="slow" value={{ form.slow }}>
+                </div>
+            </div>
+<div class="row">
+    <div class="col-25">
+        <label for="fast">Fast Period</label>
+    </div>
+    <div class="col-75">
+        <input type="number" id="fast" name="fast" value={{ form.fast }}>
+    </div>
+</div>
+<div class="row">
+    <div class="col-25">
+        <label for="volume_period">Volume Period</label>
+    </div>
+    <div class="col-75">
+        <input type="number" id="volume_period" name="volume_period" value={{ form.volume_period }}>
+    </div>
+</div>
+            <div class="row">
+                <button type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+    </div>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;">
+            <div class="graph">
+                <canvas style="background-color: white;" id="chart"></canvas>
+            </div>
+            <div class="graph">
+                <canvas style="background-color: white;" id="volume"></canvas>
+            </div>
+            <div class="graph">
+                <canvas style="background-color: white;" id="volatility"></canvas>
+            </div>
+            <div class="graph">
+                <canvas style="background-color: white;" id="eps"></canvas>
+            </div>
+    </div>
+
+    <div class="content">
+      
+        <div class='info-table'>
+            <table id="analyze-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Latest</th>
+                        <th>Predicted</th>
+                        <th>...</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Reported EPS</td>
+                        <td>{{ latest_earnings }}</td>
+                        <td>{{ pred_earnings }}</td>
+                        <td>...</td>
+                    </tr>
+                    <tr>
+                        <td>Close Price</td>
+                        <td>${{ latest_price }}</td>
+                        <td>${{ pred_price }}</td>
+                        <td>...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class='compare-form'>
+
+        </div>
+   </div>
+
+</body>
+<script>
+    var ctx = document.getElementById('chart').getContext('2d');
+    var lineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: {{ dates | tojson }}, //dates array (prob has to be string)
+            datasets: [
+                {
+                    label: "Close Price",
+                    data: {{ prices | tojson }}, //close price array
+                    fill: false,
+                    borderColor: "green",
+                },
+                {
+                    label: "Fast Moving Average",
+                    data: {{ price_ma | tojson }}, //moving avg price array
+                    fill: false,
+                    borderColor: "blue",
+                    lineTension: 0
+                },
+                {
+                    label: "Slow Moving Average",
+                    data: {{ long_price_ma | tojson }}, //moving avg price array
+                    fill: false,
+                    borderColor: "red",
+                    lineTension: 0
+                },
+              
+            ]
+        },
+        options: {
+            responsive: true,
+            
+        }
+    });
+
+    var volume = document.getElementById('volume').getContext('2d');
+    var volumeChart = new Chart(volume, {
+        type: 'line',
+        data: {
+            labels: {{ dates | tojson }}, 
+        datasets: [
+            {
+            label: "Volume Data",
+            data: {{ volumes | tojson }}, //moving avg price array
+            fill: false,
+            borderColor: "black",
+            lineTension: 0
+        },
+            {
+            label: "Volume Moving Average",
+            data: {{ volume_averages | tojson }}, //moving avg price array
+            fill: false,
+            borderColor: "orange",
+            lineTension: 0
+        }
+    ]
+    }})
+    var volatility = document.getElementById('volatility').getContext('2d');
+    var volatilityChart = new Chart(volatility, {
+        type: 'line',
+        data: {
+            labels: {{ dates | tojson }}, 
+        datasets: [
+            {
+            label: "volatility Data",
+            data: {{ volatilities | tojson }}, //moving avg price array
+            fill: false,
+            borderColor: "black",
+            lineTension: 0
+        },
+            {
+            label: "volatility Moving Average",
+            data: {{ volatility_averages | tojson }}, //moving avg price array
+            fill: false,
+            borderColor: "orange",
+            lineTension: 0
+        }
+    ]
+    }})
+    var eps = document.getElementById('eps').getContext('2d');
+    var epsChart = new Chart(eps, {
+        type: 'line',
+        data: {
+            labels: {{ eps_date | tojson }}, 
+        datasets: [
+            {
+            label: "Reported Eps vs Estimated Eps (%)",
+            data: {{ eps_percent_change | tojson }}, //moving avg price array
+            fill: false,
+            borderColor: "black",
+            lineTension: 0
+        }
+    ]
+    }})
+</script>

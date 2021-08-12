@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<head>
+    <title>Stock Trender</title>
+    <link rel="stylesheet" href="../../static/css.css" />
+</head>
+<body>
+    <div id="trend-selector">
+        <h3>Trend Selector</h3>
+        <button class="tab selected" >Trend</button>
+        <button class="tab" href="/">Basic</button>
+        <div id="trend-options">
+            <form id="basic" method="POST" action="/">
+                <input type="hidden" name="type" value="basic" />
+                <label>Start Date</label>
+                <span><input name="startdate" type="date"></span>
+                <br><br>
+                <label>End Date</label>
+                <span><input name="enddate" type="date"></span>
+                <br><br>
+                <label>Price</label>
+                <span>
+                <select>
+                    <option value="increase">Increase by</option>
+                    <option value="decrease">Decrease by</option>
+                </select>
+                <input name="price" type="number">
+                </span>
+                <br><br>
+                <label>Industry Avg</label>
+                <span>
+                <select>
+                    <option value="increase">Increase by</option>
+                    <option value="decrease">Decrease by</option>
+                </select>
+                <input name="industry" type="number">
+                </span>
+                <br><br>
+                <label>Avg Price Change</label>
+                <span>
+                Per
+                <select>
+                    <option value="day">day</option>
+                    <option value="month">month</option>
+                    <option value="year">year</option>
+                </select>
+                <input name="pricechange" type="number">
+                </span>
+                <br><br>
+                <label>Earning Reports</label>
+                <span>
+                <select>
+                    <option value="increase">Increase by</option>
+                    <option value="decrease">Decrease by</option>
+                </select>
+                <input name="earnings" type="number">
+                </span>
+                <br><br>
+                
+                <button type="submit">Search</button>
+            </form>
+            
+        </div>
+    </div>
+    <!--table-->
+    <div id="trend-table">
+        <form>
+        <table>
+            <tr>
+                <th></th>
+                <th>Price</th>
+                <th>Symbol</th>
+                <th>Data 1</th>
+                <th>Data 2</th>
+                <th>Data 3</th>
+                <th>Data 4</th>
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="stock" value=1></td>
+                <td>Price</td>
+                <td>Symbol</td>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td>Data 3</td>
+                <td>Data 4</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="stock" value=2></td>
+                <td>Price</td>
+                <td>Symbol</td>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td>Data 3</td>
+                <td>Data 4</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="stock" value=3></td>
+                <td>Price</td>
+                <td>Symbol</td>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td>Data 3</td>
+                <td>Data 4</td>
+            </tr>
+        </table>
+    </div>
+    <button type="submit" id="compare-stocks">Compare Selected Stocks</button>
+</form>
+</body>

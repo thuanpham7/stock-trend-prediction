@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<head>
+    <title>Stock Trender</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="../../static/css.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
+</head>
+<body>
+    <div class="page-container">
+
+    <div class="selector-container" id="trend-selector">
+        <div class="selector-heading">
+            Stock Selector
+        </div>
+        <div class="selector-options">
+                <button onClick='switchForm("trend")' class='tab'>Trend</button>
+                <button onClick='switchForm("basic")' class='tab'>Basic</button>
+        </div>
+        
+        <div class="container">
+            <form  id="basic" action="/" method="POST">
+                <input type="hidden" name="type" value="basic" />
+                <div class="row text-center text-bold">
+                    <label>You are performing a "Basic" Search</label>
+                    <label>The goal of this search is to find companies matching specific criteria using our "Company" Table</label>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="csymbol">Company Symbol</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="text" id="csymbol" name="companySymbol" placeholder="TSLA, AAPL, MSFT, ...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="isymbol">Index Symbol</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="text" id="isymbol" name="indexSymbol" placeholder="NASDAQ, SP500, NYSE, ...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="sector">Sector</label>
+                    </div>
+                    <div class="col-75">
+                        <select id="sector" name="sector">
+                            <option value="*">Any</option>
+                            {% for sector in sectors %}
+                            <option value='{{ sector }}'>{{ sector }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="industry">Industry</label>
+                    </div>
+                    <div class="col-75">
+                        <select id="industry" name="industry">
+                            <option value="*">Any</option>
+                            {% for industry in industries %}
+                            <option value='{{ industry }}'>{{ industry }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="marketCap">Market Cap (billions)</label>
+                    </div>
+                    <div class="col-25">
+                        <select id="price-option-mc" name="price-option-mc">
+                            <option value="GT">></option>
+                            <option value="LT"><</option>
+                        </select>
+                    </div>
+                    <div class="col-50">
+                        <input type="number" id="marketCap" name="marketCap" ></input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="eps">EPS</label>
+                    </div>
+                    <div class="col-25">
+                        <select id="price-option-eps" name="price-option-eps">
+                            <option value="GT">></option>
+                            <option value="LT"><</option>
+                        </select>
+                    </div>
+                    <div class="col-50">
+                        <input type="number" id="eps" name="eps" ></input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="pm">Profit Margin</label>
+                    </div>
+                    <div class="col-25">
+                        <select id="price-option-pm" name="price-option-pm">
+                            <option value="GT">></option>
+                            <option value="LT"><</option>
+                        </select>
+                    </div>
+                    <div class="col-50">
+                        <input type="number" id="pm" name="pm" ></input>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-25">
+                        <label for="dps">Dividend Per Share</label>
+                    </div>
+                    <div class="col-25">
+                        <select id="price-option-dps" name="price-option-dps">
+                            <option value="GT">></option>
+                            <option value="LT"><</option>
+                        </select>
+                    </div>
+                    <div class="col-50">
+                        <input type="number" id="dps" name="dps" ></input>
+                    </div>
+                </div>
+                <div class="row">
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+            <form style='display: none' id="trend" method="POST" action="/">
+                <input id="type" type="hidden" name="type" value="trend" />
+                <div class="row text-center text-bold">
+                    <label>You are performing a "Trend" Search</label>
+                    <label>The goal of this search is to conduct complex queries of the data we have avaible, from earnings reports to price changes and more</label>
+                </div>
+                <hr />
+                <div class="row text-center text-bold">
+                    Required Fields
+                </div>
+                <div class="row">
+                    <div class="col-75">
+                        <label for="start">Start Date * </label>
+                    </div>
+                    <div class="col-25">
+                        <input type="date" id="start" name="start" value="2020-01-01"  required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-75">
+                        <label for="end">End Date * </label>
+                    </div>
+                    <div class="col-25">
+                        <input type="date" id="end" name="end" required value="2020-12-31">
+                    </div>
+                </div>
+                <hr />
+                <div class="row text-center text-bold">
+                    Optional Fields
+                </div>
+                <div class="row">
+                    <div class="col-50">
+                        <label for="qer">Quarterly Earnings Report <br /> (Positive for increase, negative for decrease)</label>
+                    </div>
+                    
+                    <div class="col-25">
+                        <input type="number" id="qer-change" name="qer-change">
+                    </div>
+                    <div class="col-25">
+                        <select id="qer-change-type" name="qer-change-type">
+                            <option value="percent">%</option>
+                            <option value="dollar">$</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-50">
+                        <label for="rve">Reported - Estimated EPS <br> (Uses end date as comparision date) <br /> <br /> (Positive for increase, negative for decrease)</label>
+                    </div>
+                    
+                    <div class="col-25">
+                        <input type="number" id="rve-change" name="rve-change">
+                    </div>
+                    <div class="col-25">
+                        <select id="rve-change-type" name="rve-change-type">
+                            <option value="percent">%</option>
+                            <option value="dollar">$</option>
+                        </select>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-50">
+                        <label for="price">Stock Price (Positive for increase, negative for decrease)</label>
+                    </div>
+                    
+                    <div class="col-25">
+                        <input type="number" id="price-change" name="price-change">
+                    </div>
+                    <div class="col-25">
+                        <select id="price-change-type" name="price-change-type">
+                            <option value="percent">%</option>
+                            <option value="dollar">$</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-50">
+                        <label for="volume">Average Stock Volume <br> (Millions)</label>
+                    </div>
+                    <div class="col-25">
+                    <select id="volume-direction" name="volume-direction">
+                        <option value=">">Greater than</option>
+                        <option value="<">Less than</option>
+                    </select>
+                    </div>
+                    <div class="col-25">
+                        <input type="number" id="volume-change" name="volume-change">
+                    </div>
+                   
+                </div>
+                <div class="row">
+                    <div class="col-50">
+                        <label for="volatility">Average Stock Volatility <br> (high minus low in %)</label>
+                    </div>
+                    <div class="col-25">
+                        <select id="volatility-direction" name="volatility-direction">
+                            <option value=">">Greater than</option>
+                            <option value="<">Less than</option>
+                        </select>
+                    </div>
+                    <div class="col-25">
+                        <input type="number" id="volatility-change" name="volatility-change">
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+        
+        
+    </div>
+    <!--table-->
+    <div class="table-container">
+        <div class="table-title">
+            Query Results
+        </div>
+        <div class="table-content">
+        <table id="analyze-table">
+            <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Symbol</th>
+                            <th>Price</th>
+                            <th>Sector</th>
+                            <th>Industry</th>
+                            <th>Market Cap</th>
+                            <th>EPS</th>
+                            <th>Profit Margin</th>
+                            <th>Action</th>
+                        </tr>
+            </thead>
+            <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ result.0 }}</td>
+                            <td>{{ result.10|round(2) }}</td>
+                            <td>{{ result.14 }}</td>
+                            <td>{{ result.15 }}</td>
+                            <td>{{ result.16 }}</td>
+                            <td>{{ result.17 }}</td>
+                            <td>{{ result.18 }}</td>
+                            <td><a type="link" href="{{ url_for('analyze', stock=result.0)}}">Analyze</a></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7">No results! Try a different query</td>
+                        </tr>
+                        {% endfor %}
+            </tbody>
+  
+        </table>
+        </div>
+    </div>
+    </div>
+
+</body>
+
+<script>
+    function switchForm(type) {
+        let basic_form = document.getElementById("basic");
+        let trend_form = document.getElementById("trend");
+        if (type == "basic") {
+            basic_form.style.display = "block";
+            trend_form.style.display = "none";
+        }
+        else {
+            trend_form.style.display = "block";
+            basic_form.style.display = "none"
+        }
+    }
+
+    $(document).ready(function () {
+        $('#analyze-table').DataTable({
+            pageLength: 10,
+            lengthChange: false,
+        });
+
+        let basic_form = document.getElementById("basic");
+        let trend_form = document.getElementById("trend");
+        let type = document.getElementById("initial-form").val()
+        
+
+    });
+</script>
